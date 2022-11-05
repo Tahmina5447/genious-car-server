@@ -18,15 +18,17 @@ const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology:
 
 function verifyJWT(req,res,next){
   const authHeader=req.headers.authorization;
+  // console.log(authHeader)
   if(!authHeader){
     return res.status(401).send({message:'unauthorized access'})
   }
   const token=authHeader.split(' ')[1];
-  console.log(token)
-  jwt.verify=(token,process.env.TOKEN,function(err,decoded){
+  // console.log(token)
+  jwt.verify(token,process.env.Token,function(err,decoded){
     if(err){
       return res.status(401).send({message:'unauthorized access'})
     }
+    console.log(decoded)
     req.decoded=decoded;
     next();
   })
@@ -44,7 +46,7 @@ async function run(){
     app.post('/jwt',(req,res)=>{
       const user=req.body;
       // console.log(user)
-      const token=jwt.sign(user,process.env.TOKEN,{expiresIn:'1d'});
+      const token=jwt.sign(user,process.env.Token,{expiresIn:'1d'});
       res.send({token});
     })
 
@@ -69,6 +71,7 @@ async function run(){
 
     app.get('/order',verifyJWT,async(req,res)=>{
       const decoded=req.decoded;
+      console.log(decoded)
       if(decoded.email !== req.query.email){
         return res.status(403).send({message:'unauthorized access'})
       }
